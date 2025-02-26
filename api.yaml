@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  title: Admin API
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      summary: Получить список товаров
+      responses:
+        '200':
+          description: Успешный ответ
+  /add:
+    post:
+      summary: Добавить товар
+      requestBody:
+        required: true
+  /delete:
+    delete:
+      summary: Удалить товар
+      parameters:
+        - name: id
+          in: query
+          required: true

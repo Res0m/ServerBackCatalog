@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Админ-панель</h1>
+    
+    <div id="product-form">
+        <input type="text" id="name" placeholder="Название">
+        <input type="number" id="price" placeholder="Цена">
+        <input type="text" id="description" placeholder="Описание">
+        <button onclick="addProduct()">Добавить товар</button>
+    </div>
+
+    <h2>Товары</h2>
+    <div id="products"></div>
+
+    <script>
+        async function loadProducts() {
+            const res = await fetch('http://localhost:8080/products');
+            const products = await res.json();
+            let container = document.getElementById('products');
+            container.innerHTML = '';
+
+            products.forEach(p => {
+                let card = `<div class="product-card">
+                    <h2>${p.name}</h2>
+                    <p>${p.description}</p>
+                    <p>Цена: ${p.price} руб.</p>
+                    <button onclick="editProduct(${p.id})">Редактировать</button>
+                    <button onclick="deleteProduct(${p.id})">Удалить</button>
+                </div>`;
+                container.innerHTML += card;
+            });
+        }
+
+        async function addProduct() {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const description = document.getElementById('description').value;
+
+            await fetch('http://localhost:8080/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, price, description })
+            });
+            loadProducts();
+        }
+
+        async function deleteProduct(id) {
+            await fetch(`http://localhost:8080/products/${id}`, { method: 'DELETE' });
+            loadProducts();
+        }
+
+        async function editProduct(id) {
+            const newName = prompt("Введите новое название:");
+            const newPrice = prompt("Введите новую цену:");
+            const newDescription = prompt("Введите новое описание:");
+
+            await fetch(`http://localhost:8080/products/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, name: newName, price: newPrice, description: newDescription })
+            });
+            loadProducts();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>

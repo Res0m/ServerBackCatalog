@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Компьютер",
+    "price": 10000,
+    "description": ")"
+  },
+  {
+    "id": 2,
+    "name": "Ноутбук Y",
+    "price": 80000,
+    "description": "Мощный ноутбук"
+  },
+  {
+    "id": 3,
+    "name": "Фен Z",
+    "price": 3000,
+    "description": "Фен с ионизацией"
+  },
+  {
+    "id": 4,
+    "name": "Айфон",
+    "price": 0,
+    "description": "вфыаыфыа"
+  }
+]

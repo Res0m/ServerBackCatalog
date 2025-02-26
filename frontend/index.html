@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Каталог товаров</h1>
+    <div id="products"></div>
+
+    <script>
+        async function loadProducts() {
+            const res = await fetch('http://localhost:3000/products');
+            const products = await res.json();
+            let container = document.getElementById('products');
+            container.innerHTML = '';
+            products.forEach(p => {
+                let card = `<div class="card">
+                    <h2>${p.name}</h2>
+                    <p>${p.description}</p>
+                    <p><strong>Цена:</strong> ${p.price} руб.</p>
+                </div>`;
+                container.innerHTML += card;
+            });
+        }
+        loadProducts();
+    </script>
+</body>
+</html>
