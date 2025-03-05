@@ -4,28 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог товаров</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <h1>Каталог товаров</h1>
     <div id="products"></div>
 
+    <h2>Чат поддержки</h2>
+    <div id="chat-box" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
+    <input type="text" id="message-input" placeholder="Введите сообщение..." />
+    <button onclick="sendMessage()">Отправить</button>
+
     <script>
+        async function fetchProducts() {
+            const query = `
+                query {
+                    products {
+                        id
+                        name
+                        price
+                        description
+                    }
+                }
+            `;
+
+            try {
+                const response = await fetch("/graphql", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка запроса: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Ответ от сервера:", data);
+
+                return data.data?.products || [];
+            } catch (error) {
+                console.error("Ошибка загрузки данных:", error);
+                return [];
+            }
+        }
+
         async function loadProducts() {
-            const res = await fetch('http://localhost:3000/products');
-            const products = await res.json();
+            const products = await fetchProducts();
             let container = document.getElementById('products');
             container.innerHTML = '';
-            products.forEach(p => {
-                let card = `<div class="card">
-                    <h2>${p.name}</h2>
-                    <p>${p.description}</p>
-                    <p><strong>Цена:</strong> ${p.price} руб.</p>
-                </div>`;
-                container.innerHTML += card;
-            });
+
+            if (products.length > 0) {
+                products.forEach(p => {
+                    let card = `<div class="card">
+                        <h2>${p.name}</h2>
+                        <p>${p.description}</p>
+                        <p><strong>Цена:</strong> ${p.price} руб.</p>
+                    </div>`;
+                    container.innerHTML += card;
+                });
+            } else {
+                container.innerHTML = "<p>Товары не найдены.</p>";
+            }
         }
-        loadProducts();
+
+        // Инициализация WebSocket
+        const socket = new WebSocket("ws://localhost:8080/ws");
+
+        socket.onmessage = function (event) {
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p>${event.data}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight; // Прокрутка вниз
+        };
+
+        function sendMessage() {
+            const input = document.getElementById("message-input");
+            const message = input.value.trim();
+            if (message) {
+                socket.send(message);
+                input.value = "";
+            }
+        }
+
+        loadProducts(); // Загружаем товары при старте
     </script>
 </body>
 </html>
